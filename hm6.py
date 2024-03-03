@@ -7,51 +7,46 @@ class Field:
     def __str__(self):
         return str(self.value)
 
-
 class Name(Field):
     # реалізація класу
-        def __init__(self, value):
-            self.value = value
-
+    pass
 
 class Phone(Field):
     # реалізація класу
     def __init__(self, value):
-        self.value = value
-
+        super().__init__(value)
+        if not self.validate():
+            raise ValueError("Invalid phone number")
+        
+    # перевірка на правильність введення номеру телефону
+    def validate(self):
+        return len(self.value) == 10 and self.value.isdigit()
 
 class Record:
-    
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
 
     def add_phone(self, phone):
-        
-        if phone not in self.phones:
-            if len(phone) == 10:
-                self.phones.append(Phone(phone))   
-            else:
-                print("Invalid phone number")
+        self.phones.append(Phone(phone))
+
+    def remove_phone(self, phone):
+        self.phones.remove(phone)
 
     def edit_phone(self, old_phone, new_phone):
         for phone in self.phones:
             if phone.value == old_phone:
                 phone.value = new_phone
                 break
-    
-    def delete_phone(self, phone):
-        self.phones.remove(phone)
-
-    def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
     def find_phone(self, phone):
         for p in self.phones:
             if p.value == phone:
-                return p.value
-        return f"Phone {phone} not found"
+                return p
+        return None
 
+    def __str__(self):
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
 class AddressBook(UserDict):
     # реалізація класу
@@ -59,10 +54,17 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
 
     def find(self, name):
-        return self.data[name]
-    
+        if name in self.data:
+            return self.data[name]
+        return None
+
     def delete(self, name):
-        del self.data[name]
+        if name in self.data:
+            self.data.pop(name)
+        else:
+            raise KeyError(f"'{name}' not found")
+
+    
 
 ###############################################################
 
